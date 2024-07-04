@@ -81,6 +81,7 @@ S1:
           route-target import evpn 65001:10000
           route-target export evpn 65001:10000
           router-id 10.100.0.1
+          redistribute connected
 
 настраиваем VTEP интерфейс на S1
     
@@ -106,4 +107,46 @@ S1:
 
 ##проверяем, что получилось
 
+пингаем с host1 адрес host2 (он в другой сети)
+
+        VPCS> sh ip
+        
+        NAME        : VPCS[1]
+        IP/MASK     : 192.168.10.10/24
+        GATEWAY     : 192.168.10.1
+        DNS         : 
+        MAC         : 00:50:79:66:68:06
+        LPORT       : 20000
+        RHOST:PORT  : 127.0.0.1:30000
+        MTU         : 1500
+        
+        VPCS> ping 192.168.20.10
+        
+        84 bytes from 192.168.20.10 icmp_seq=1 ttl=62 time=18.761 ms
+        84 bytes from 192.168.20.10 icmp_seq=2 ttl=62 time=17.735 ms
+        84 bytes from 192.168.20.10 icmp_seq=3 ttl=62 time=6.907 ms
+        84 bytes from 192.168.20.10 icmp_seq=4 ttl=62 time=9.342 ms
+        84 bytes from 192.168.20.10 icmp_seq=5 ttl=62 time=17.359 ms
+
+и наблюдаем, что на лифе появился маршрут до удаленного хоста
+
+    L1(config-router-bgp-vrf-VXLAN)#sh bgp evpn route-type ip-prefix ipv4
+    BGP routing table information for VRF default
+    Router identifier 10.100.0.1, local AS number 65001
+    Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                        c - Contributing to ECMP, % - Pending BGP convergence
+    Origin codes: i - IGP, e - EGP, ? - incomplete
+    AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+    
+              Network                Next Hop              Metric  LocPref Weight  Path
+     * >      RD: 65001:10000 ip-prefix 192.168.10.0/24
+                                     -                     -       -       0       i
+     * >Ec    RD: 65001:10000 ip-prefix 192.168.20.0/24
+                                     10.100.0.2            -       100     0       65901 65001 i
+     *  ec    RD: 65001:10000 ip-prefix 192.168.20.0/24
+                                     10.100.0.2            -       100     0       65901 65001 i
+
+route-type ip-prefix  в терминах аристы это маршрут 5 типа
+
+# Задача решена
 
