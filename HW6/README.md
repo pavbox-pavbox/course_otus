@@ -138,7 +138,7 @@ S1:
 
 и наблюдаем, что на лифе появился маршрут до удаленного хоста
 
-L1(config-router-bgp-vrf-VXLAN)#sh ip route vrf VXLAN
+    L1(config-router-bgp-vrf-VXLAN)#sh ip route vrf VXLAN
 
     VRF: VXLAN
     
