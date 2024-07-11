@@ -100,6 +100,11 @@ S1:
 
 ### на S2 настраиваем все аналогично, но влан берем 20, и также третий октет в клиентской сети будет также 20
 
+таким образом:
+  на S1 vlan10 будет маппиться в vni 10010
+  на S2 vlan20 будет маппиться в vni 10020
+  и на обоих спайнах vrf VXLAN соответствует vni 10000
+
 на спайнах включаем маршрутизацию
 
     ip routing
@@ -130,23 +135,16 @@ S1:
 
 и наблюдаем, что на лифе появился маршрут до удаленного хоста
 
-    L1(config-router-bgp-vrf-VXLAN)#sh bgp evpn route-type ip-prefix ipv4
-    BGP routing table information for VRF default
-    Router identifier 10.100.0.1, local AS number 65001
-    Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
-                        c - Contributing to ECMP, % - Pending BGP convergence
-    Origin codes: i - IGP, e - EGP, ? - incomplete
-    AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
-    
-              Network                Next Hop              Metric  LocPref Weight  Path
-     * >      RD: 65001:10000 ip-prefix 192.168.10.0/24
-                                     -                     -       -       0       i
-     * >Ec    RD: 65001:10000 ip-prefix 192.168.20.0/24
-                                     10.100.0.2            -       100     0       65901 65001 i
-     *  ec    RD: 65001:10000 ip-prefix 192.168.20.0/24
-                                     10.100.0.2            -       100     0       65901 65001 i
+L1(config-router-bgp-vrf-VXLAN)#sh ip route vrf VXLAN
 
-route-type ip-prefix  в терминах аристы это маршрут 5 типа
+    VRF: VXLAN
+    
+    Gateway of last resort is not set
+    
+     C        192.168.10.0/24 is directly connected, Vlan10
+     B E      192.168.20.10/32 [200/0] via VTEP 10.100.0.2 VNI 10000 router-mac 50:00:00:03:37:66 local-interface Vxlan1
+     B E      192.168.20.0/24 [200/0] via VTEP 10.100.0.2 VNI 10000 router-mac 50:00:00:03:37:66 local-interface Vxlan1
+
 
 # Задача решена
 
