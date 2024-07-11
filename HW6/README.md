@@ -148,6 +148,39 @@ L1:
      B E      192.168.20.10/32 [200/0] via VTEP 10.100.0.2 VNI 10000 router-mac 50:00:00:03:37:66 local-interface Vxlan1
      B E      192.168.20.0/24 [200/0] via VTEP 10.100.0.2 VNI 10000 router-mac 50:00:00:03:37:66 local-interface Vxlan1
 
+вывод bgp evpn
+
+    L1(config-router-bgp-vrf-VXLAN)#sh bgp evpn
+    BGP routing table information for VRF default
+    Router identifier 10.100.0.1, local AS number 65001
+    Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                        c - Contributing to ECMP, % - Pending BGP convergence
+    Origin codes: i - IGP, e - EGP, ? - incomplete
+    AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+    
+              Network                Next Hop              Metric  LocPref Weight  Path
+     * >      RD: 10.100.0.1:10 mac-ip 0050.7966.6806
+                                     -                     -       -       0       i
+     * >      RD: 10.100.0.1:10 mac-ip 0050.7966.6806 192.168.10.10
+                                     -                     -       -       0       i
+     * >Ec    RD: 10.100.0.2:20 mac-ip 0050.7966.6807
+                                     10.100.0.2            -       100     0       65901 65001 i
+     *  ec    RD: 10.100.0.2:20 mac-ip 0050.7966.6807
+                                     10.100.0.2            -       100     0       65901 65001 i
+     * >Ec    RD: 10.100.0.2:20 mac-ip 0050.7966.6807 192.168.20.10
+                                     10.100.0.2            -       100     0       65901 65001 i
+     *  ec    RD: 10.100.0.2:20 mac-ip 0050.7966.6807 192.168.20.10
+                                     10.100.0.2            -       100     0       65901 65001 i
+     * >      RD: 10.100.0.1:10 imet 10.100.0.1
+                                     -                     -       -       0       i
+     * >Ec    RD: 10.100.0.2:20 imet 10.100.0.2
+                                     10.100.0.2            -       100     0       65901 65001 i
+     *  ec    RD: 10.100.0.2:20 imet 10.100.0.2
+                                     10.100.0.2            -       100     0       65901 65001 i
+     * >Ec    RD: 10010:10010 imet 10.100.0.3
+                                     10.100.0.3            -       100     0       65901 65001 i
+     *  ec    RD: 10010:10010 imet 10.100.0.3
+                                     10.100.0.3            -       100     0       65901 65001 i
 
 # Задача решена
 
