@@ -22,3 +22,44 @@ VXLAN фабрика не меняется, добавляем клиентов 
        vrf VRF_RED
        ip address virtual 192.168.10.129/25
     !
+
+Далее этот vrf ассоциируем с vni 10000 в интерфейсе vxlan1
+
+    interface Vxlan1
+       vxlan source-interface Loopback1
+       vxlan udp-port 4789
+       vxlan vrf VRF_RED vni 10000
+
+Сети клиентов выбраны с маской /25 для дальнейшей демонстрации суммаризации маршрутов
+
+На L2 выполняем похожие настройки, меняя клиентскую сеть, влан, vni, и название vrf на коммутаторе
+
+    interface Vlan20
+       vrf VRF_BLUE
+       ip address virtual 192.168.20.1/24
+    !
+    interface Vxlan1
+       vxlan source-interface Loopback1
+       vxlan udp-port 4789
+       vxlan vlan 20 vni 10020
+       vxlan vrf VRF_BLUE vni 20000
+
+Коммутатор L3 в нашей работе будет выполнять роль border-leaf. На нем настроены оба клиентских vrf. Маршрутизации между клиентами пока нет, так как vrf изолированы друг от друга. 
+
+    interface Vxlan1
+       vxlan source-interface Loopback1
+       vxlan udp-port 4789
+       vxlan vrf VRF_BLUE vni 20000
+       vxlan vrf VRF_RED vni 10000
+    !
+    ip routing
+    ip routing vrf VRF_BLUE
+    ip routing vrf VRF_RED
+
+По условиям задачи непосредственно маршрутизацию будет осуществлять отдельный роутер. Он расположен справа на схеме. С ним организован стык двумя интерфейсами. 
+
+|устройство|интерфейс|адрес|-|адрес|интерфейс|устройство|
+|-|-|-|-|-|-|-|
+|L3|Eth3|10.250.0.0/31|-|10.250.0.1/31|Eth1|Router|
+|L3|Eth4|10.250.1.0/31|-|10.250.1.1/31|Eth2|Router|
+
