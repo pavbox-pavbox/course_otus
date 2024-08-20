@@ -289,3 +289,629 @@
 
 # Цели достигнуты, задача решена
 
+
+<details>
+<summary>LSW1</summary>
+    
+        ! device: LSW1 (vEOS-lab, EOS-4.29.2F)
+        !
+        ! boot system flash:/vEOS-lab.swi
+        !
+        no aaa root
+        !
+        transceiver qsfp default-mode 4x10G
+        !
+        service routing protocols model multi-agent
+        !
+        hostname LSW1
+        !
+        spanning-tree mode mstp
+        !
+        vlan 100,200,300
+        !
+        interface Port-Channel1
+           switchport access vlan 100
+           switchport mode dot1q-tunnel
+           !
+           evpn ethernet-segment
+              identifier 0011:2222:3333:4444:5555
+              route-target import de:ad:be:ef:00:01
+           lacp system-id dead.beef.0001
+        !
+        interface Ethernet1
+           no switchport
+           ip address 10.0.0.0/31
+        !
+        interface Ethernet2
+           no switchport
+           ip address 10.1.0.0/31
+        !
+        interface Ethernet3
+           channel-group 1 mode active
+        !
+        interface Ethernet4
+        !
+        interface Ethernet5
+        !
+        interface Ethernet6
+        !
+        interface Ethernet7
+        !
+        interface Ethernet8
+           switchport access vlan 200
+        !
+        interface Loopback0
+           ip address 10.100.0.1/32
+        !
+        interface Management1
+        !
+        interface Vxlan1
+           vxlan source-interface Loopback0
+           vxlan udp-port 4789
+           vxlan vlan 100 vni 10100
+           vxlan vlan 200 vni 10200
+           vxlan vlan 300 vni 10300
+        !
+        ip routing
+        !
+        router bgp 65001
+           router-id 10.100.0.1
+           timers bgp 3 9
+           maximum-paths 10
+           neighbor SPINES peer group
+           neighbor SPINES remote-as 65100
+           neighbor SPINES update-source Loopback0
+           neighbor SPINES bfd
+           neighbor SPINES allowas-in 2
+           neighbor SPINES ebgp-multihop 10
+           neighbor SPINES send-community extended
+           neighbor 10.101.0.1 peer group SPINES
+           neighbor 10.101.0.2 peer group SPINES
+           !
+           vlan 100
+              rd 10100:10100
+              route-target both 10100:10100
+              redistribute learned
+           !
+           vlan 200
+              rd 10200:10200
+              route-target both 10200:10200
+              redistribute learned
+           !
+           vlan 300
+              rd 10300:10300
+              route-target both 10300:10300
+              redistribute learned
+           !
+           address-family evpn
+              neighbor SPINES activate
+           !
+           address-family ipv4
+              no neighbor SPINES activate
+        !
+        router ospf 1
+           router-id 10.100.0.1
+           network 10.0.0.0/31 area 0.0.0.0
+           network 10.1.0.0/31 area 0.0.0.0
+           network 10.100.0.1/32 area 0.0.0.0
+           max-lsa 12000
+           maximum-paths 2
+        !
+        end
+</details>
+
+
+<details>
+<summary>LSW2</summary>
+
+```
+! device: LSW2 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname LSW2
+!
+spanning-tree mode mstp
+!
+vlan 100,200,300
+!
+interface Port-Channel1
+   evpn ethernet-segment
+      identifier 0011:2222:3333:4444:5555
+      route-target import de:ad:be:ef:00:01
+   lacp system-id dead.beef.0001
+!
+interface Ethernet1
+   no switchport
+   ip address 10.2.0.0/31
+!
+interface Ethernet2
+   no switchport
+   ip address 10.3.0.0/31
+!
+interface Ethernet3
+   channel-group 1 mode active
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 10.100.0.2/32
+!
+interface Management1
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 100 vni 10100
+   vxlan vlan 200 vni 10200
+   vxlan vlan 300 vni 10300
+!
+ip routing
+!
+router bgp 65001
+   router-id 10.100.0.2
+   timers bgp 3 9
+   maximum-paths 10
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65100
+   neighbor SPINES update-source Loopback0
+   neighbor SPINES bfd
+   neighbor SPINES allowas-in 2
+   neighbor SPINES ebgp-multihop 10
+   neighbor SPINES send-community extended
+   neighbor 10.101.0.1 peer group SPINES
+   neighbor 10.101.0.2 peer group SPINES
+   !
+   vlan 100
+      rd 10100:10100
+      route-target both 10100:10100
+      redistribute learned
+   !
+   vlan 200
+      rd 10200:10200
+      route-target both 10200:10200
+      redistribute learned
+   !
+   vlan 300
+      rd 10300:10300
+      route-target both 10300:10300
+      redistribute learned
+   !
+   address-family evpn
+      neighbor SPINES activate
+   !
+   address-family ipv4
+      no neighbor SPINES activate
+!
+router ospf 1
+   router-id 10.100.0.2
+   network 10.2.0.0/31 area 0.0.0.0
+   network 10.3.0.0/31 area 0.0.0.0
+   network 10.100.0.2/32 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 2
+!
+end
+```
+</details>
+
+<details>
+    <summary>SSW1</summary>
+
+```
+! device: SSW1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname SSW1
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.0.1/31
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.0.1/31
+!
+interface Ethernet3
+   no switchport
+   ip address 10.0.1.0/31
+!
+interface Ethernet4
+   no switchport
+   ip address 10.1.1.0/31
+!
+interface Ethernet5
+   no switchport
+   ip address 10.4.1.0/31
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 10.101.0.1/32
+!
+interface Management1
+!
+ip routing
+!
+router bgp 65100
+   router-id 10.101.0.1
+   timers bgp 3 9
+   maximum-paths 8 ecmp 16
+   neighbor LEAFS peer group
+   neighbor LEAFS remote-as 65001
+   neighbor LEAFS next-hop-unchanged
+   neighbor LEAFS update-source Loopback0
+   neighbor LEAFS bfd
+   neighbor LEAFS allowas-in 2
+   neighbor LEAFS ebgp-multihop 10
+   neighbor LEAFS send-community extended
+   neighbor 10.100.0.1 peer group LEAFS
+   neighbor 10.100.0.2 peer group LEAFS
+   neighbor 10.102.0.1 peer group LEAFS
+   neighbor 10.102.0.2 peer group LEAFS
+   neighbor 10.102.0.3 peer group LEAFS
+   !
+   address-family evpn
+      neighbor LEAFS activate
+   !
+   address-family ipv4
+      no neighbor LEAFS activate
+!
+router ospf 1
+   router-id 10.101.0.1
+   network 10.0.0.0/31 area 0.0.0.0
+   network 10.0.1.0/31 area 0.0.0.0
+   network 10.1.1.0/31 area 0.0.0.0
+   network 10.2.0.0/31 area 0.0.0.0
+   network 10.4.1.0/31 area 0.0.0.0
+   network 10.101.0.1/32 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 2
+!
+end
+```
+</details>
+
+<details>
+<summary>SSW2</summary>
+```
+
+! device: SSW2 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname SSW2
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.0.1/31
+!
+interface Ethernet2
+   no switchport
+   ip address 10.3.0.1/31
+!
+interface Ethernet3
+   no switchport
+   ip address 10.2.1.0/31
+!
+interface Ethernet4
+   no switchport
+   ip address 10.3.1.0/31
+!
+interface Ethernet5
+   no switchport
+   ip address 10.5.1.0/31
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 10.101.0.2/32
+!
+interface Management1
+!
+ip routing
+!
+router bgp 65100
+   router-id 10.101.0.2
+   timers bgp 3 9
+   maximum-paths 8 ecmp 16
+   neighbor LEAFS peer group
+   neighbor LEAFS remote-as 65001
+   neighbor LEAFS next-hop-unchanged
+   neighbor LEAFS update-source Loopback0
+   neighbor LEAFS bfd
+   neighbor LEAFS allowas-in 2
+   neighbor LEAFS ebgp-multihop 10
+   neighbor LEAFS send-community extended
+   neighbor SPINES peer group
+   neighbor 10.100.0.1 peer group LEAFS
+   neighbor 10.100.0.2 peer group LEAFS
+   neighbor 10.102.0.1 peer group LEAFS
+   neighbor 10.102.0.2 peer group LEAFS
+   neighbor 10.102.0.3 peer group LEAFS
+   !
+   address-family evpn
+      neighbor LEAFS activate
+   !
+   address-family ipv4
+      no neighbor LEAFS activate
+!
+router ospf 1
+   router-id 10.101.0.2
+   network 10.1.0.0/31 area 0.0.0.0
+   network 10.2.1.0/31 area 0.0.0.0
+   network 10.3.0.0/31 area 0.0.0.0
+   network 10.3.1.0/31 area 0.0.0.0
+   network 10.5.1.0/31 area 0.0.0.0
+   network 10.101.0.2/32 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 2
+!
+end
+```
+    
+</details>
+
+<details>
+<summary>BLSW1</summary>
+
+```
+! device: BLSW1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname BLSW1
+!
+spanning-tree mode mstp
+!
+vlan 100,200,300
+!
+interface Port-Channel1
+   switchport access vlan 100
+   switchport mode dot1q-tunnel
+   !
+   evpn ethernet-segment
+      identifier 0011:2222:3333:4444:5566
+      route-target import de:ad:be:ef:00:02
+   lacp system-id dead.beef.0002
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.1.1/31
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.1.1/31
+!
+interface Ethernet3
+   channel-group 1 mode active
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+   switchport access vlan 200
+!
+interface Loopback0
+   ip address 10.102.0.1/32
+!
+interface Management1
+!
+interface Vlan200
+   ip address 192.168.200.100/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 100 vni 10100
+   vxlan vlan 200 vni 10200
+   vxlan vlan 300 vni 10300
+!
+ip routing
+!
+router bgp 65001
+   router-id 10.102.0.1
+   timers bgp 3 9
+   maximum-paths 10
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65100
+   neighbor SPINES update-source Loopback0
+   neighbor SPINES bfd
+   neighbor SPINES allowas-in 2
+   neighbor SPINES ebgp-multihop 10
+   neighbor SPINES send-community extended
+   neighbor 10.101.0.1 peer group SPINES
+   neighbor 10.101.0.2 peer group SPINES
+   !
+   vlan 100
+      rd 10100:10100
+      route-target both 10100:10100
+      redistribute learned
+   !
+   vlan 200
+      rd 10200:10200
+      route-target both 10200:10200
+      redistribute learned
+   !
+   vlan 300
+      rd 10300:10300
+      route-target both 10300:10300
+      redistribute learned
+   !
+   address-family evpn
+      neighbor SPINES activate
+   !
+   address-family ipv4
+      no neighbor SPINES activate
+!
+router ospf 1
+   router-id 10.102.0.1
+   network 10.0.1.0/31 area 0.0.0.0
+   network 10.2.1.0/31 area 0.0.0.0
+   network 10.102.0.1/32 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 2
+!
+end
+```
+</details>
+
+<details>
+<summary>BLSW2</summary>
+
+```
+! device: BLSW2 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname BLSW2
+!
+spanning-tree mode mstp
+!
+vlan 100,200,300
+!
+interface Port-Channel1
+   switchport access vlan 100
+   switchport mode dot1q-tunnel
+   !
+   evpn ethernet-segment
+      identifier 0011:2222:3333:4444:5566
+      route-target import de:ad:be:ef:00:02
+   lacp system-id dead.beef.0002
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.1.1/31
+!
+interface Ethernet2
+   no switchport
+   ip address 10.3.1.1/31
+!
+interface Ethernet3
+!
+interface Ethernet4
+   channel-group 1 mode active
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback0
+   ip address 10.102.0.2/32
+!
+interface Management1
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 100 vni 10100
+   vxlan vlan 200 vni 10200
+   vxlan vlan 300 vni 10300
+!
+ip routing
+!
+router bgp 65001
+   router-id 10.102.0.2
+   timers bgp 3 9
+   maximum-paths 10
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65100
+   neighbor SPINES update-source Loopback0
+   neighbor SPINES bfd
+   neighbor SPINES allowas-in 2
+   neighbor SPINES ebgp-multihop 10
+   neighbor SPINES send-community extended
+   neighbor 10.101.0.1 peer group SPINES
+   neighbor 10.101.0.2 peer group SPINES
+   !
+   vlan 100
+      rd 10100:10100
+      route-target both 10100:10100
+      redistribute learned
+   !
+   vlan 200
+      rd 10200:10200
+      route-target both 10200:10200
+      redistribute learned
+   !
+   vlan 300
+      rd 10300:10300
+      route-target both 10300:10300
+      redistribute learned
+   !
+   address-family evpn
+      neighbor SPINES activate
+   !
+   address-family ipv4
+      no neighbor SPINES activate
+!
+router ospf 1
+   router-id 10.102.0.2
+   network 10.1.1.0/31 area 0.0.0.0
+   network 10.3.1.0/31 area 0.0.0.0
+   network 10.102.0.2/32 area 0.0.0.0
+   max-lsa 12000
+!
+end
+```
+</details>
