@@ -510,7 +510,7 @@ end
 </details>
 
 <details>
-    <summary>SSW1</summary>
+<summary>SSW1</summary>
 
 ```
 ! device: SSW1 (vEOS-lab, EOS-4.29.2F)
@@ -601,8 +601,8 @@ end
 
 <details>
 <summary>SSW2</summary>
-```
 
+```
 ! device: SSW2 (vEOS-lab, EOS-4.29.2F)
 !
 ! boot system flash:/vEOS-lab.swi
